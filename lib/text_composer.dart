@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TextComposer extends StatefulWidget {
-
   TextComposer(this.sendMessage);
-  Function(String text) sendMessage;
+
+  final Function({String text,File imageFile}) sendMessage;
 
   @override
   _TextComposerState createState() => _TextComposerState();
@@ -13,7 +16,7 @@ class _TextComposerState extends State<TextComposer> {
   bool _isComposing = false;
   TextEditingController _controller = TextEditingController();
 
-  void _reset(){
+  void _reset() {
     _controller.clear();
     setState(() {
       _isComposing = false;
@@ -27,7 +30,12 @@ class _TextComposerState extends State<TextComposer> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
+              final PickedFile pickedFile = (await  ImagePicker.platform.pickImage(source:  ImageSource.camera)) as PickedFile;
+              if (pickedFile == null) return;
+              File imageFile = File(pickedFile.path);
+              widget.sendMessage(imageFile: imageFile);
+
               setState(() {
                 _isComposing = false;
               });
@@ -45,16 +53,19 @@ class _TextComposerState extends State<TextComposer> {
               },
               controller: _controller,
               onSubmitted: (text) {
-                widget.sendMessage(text);
+                widget.sendMessage(text : text);
                 _reset();
               },
             ),
           ),
           IconButton(
-              onPressed: _isComposing ? () {
-                widget.sendMessage(_controller.text);
-                _reset();
-              } : null, icon: Icon(Icons.send))
+              onPressed: _isComposing
+                  ? () {
+                      widget.sendMessage(text :_controller.text);
+                      _reset();
+                    }
+                  : null,
+              icon: Icon(Icons.send))
         ],
       ),
     );

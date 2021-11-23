@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   runApp(MyApp());
   await Firebase.initializeApp();
-  FirebaseFirestore.instance.collection("col").doc("doc").set({"texto": "teste Luiz51"});
+
 }
 
 class MyApp extends StatelessWidget {
