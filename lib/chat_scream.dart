@@ -14,7 +14,7 @@ class ChatScream extends StatefulWidget {
 
 class _ChatScreamState extends State<ChatScream> {
   void _sendMessage({String? text, File? imageFile}) async {
-    Map<String, dynamic> data= {};
+    Map<String, dynamic> data = {};
     if (imageFile != null) {
       TaskSnapshot task = await FirebaseStorage.instance
           .ref()
@@ -27,17 +27,42 @@ class _ChatScreamState extends State<ChatScream> {
     if (text != null) data['text'] = text;
 
     FirebaseFirestore.instance.collection("messages").add(data);
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Olá "),
-        elevation: 0,
-      ),
-      body: TextComposer(_sendMessage),
-    );
+        appBar: AppBar(
+          title: Text("Olá "),
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
+            Expanded(child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection("messages").snapshots(),
+              builder: (BuildContext context, snapshot) {
+                switch(snapshot.connectionState){
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  default:
+                    List<DocumentSnapshot> documents = snapshot.data!.docs.reversed.toList();
+                    
+                    return ListView.builder(
+                        itemCount:  documents.length,
+                        reverse: true,
+                        itemBuilder: (context,index){
+                          return ListTile(
+                            title: Text(documents[index].get('text')),
+                          );
+                        });
+                }
+              },
+            )),
+            TextComposer(_sendMessage),
+          ],
+        ));
   }
 }

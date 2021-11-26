@@ -31,9 +31,13 @@ class _TextComposerState extends State<TextComposer> {
         children: [
           IconButton(
             onPressed: () async {
+              //lembrar de ver regras do storage
               final PickedFile pickedFile = (await  ImagePicker.platform.pickImage(source:  ImageSource.camera)) as PickedFile;
-              if (pickedFile == null) return;
+              if (pickedFile == null){
+                return;
+              }
               File imageFile = File(pickedFile.path);
+
               widget.sendMessage(imageFile: imageFile);
 
               setState(() {
